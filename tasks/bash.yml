@@ -1,3 +1,8 @@
+- name: Configure inputrc
+  blockinfile:
+    marker: "# {mark} agent.inputrc"
+    block: "{{agent_inputrc}}"
+  when: agent_inputrc is defined
 
 - name: Look for bash
   shell: which bash

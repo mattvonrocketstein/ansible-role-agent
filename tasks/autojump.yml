@@ -1,0 +1,17 @@
+
+- name: Clone autojump
+  git:
+    repo: 'https://github.com/wting/autojump.git'
+    dest: '{{agent_code_home}}/autojump'
+    version: 6a529f4f929042a
+
+- name: Install autojump
+  shell: 'cd {{agent_code_home}}/autojump && python ./install.py'
+  creates: '{{ansible_env.HOME}}/.autojump'
+
+- name: Configure autojump
+  blockinfile:
+    marker: "# {mark} agent.autojump"
+    path: "{{bash_config}}"
+    block: |
+      [[ -s {{ansible_env.HOME}}/.autojump/etc/profile.d/autojump.sh ]] && source {{ansible_env.HOME}}/.autojump/etc/profile.d/autojump.sh

@@ -1,8 +1,24 @@
 ---
 # defaults file for ansible/roles/agent
-agent_ssh: no
-agent_bash: no
-agent_dirs: no
-agent_code: no
-agent_ssh_dir: yes
+
+#
 agent_code_home: "{{ansible_env.HOME}}/code"
+
+#
+agent_ssh_dir: yes
+
+# whether to install autojump
+# https://github.com/wting/autojump
+install_autojump: no
+
+#
+agent_ssh: no
+
+#
+agent_bash: no
+
+#
+agent_dirs: no
+
+#
+agent_code: no

@@ -1,26 +1,3 @@
-- name: Configure inputrc
-  become: no
-  blockinfile:
-    create: yes
-    marker: "# {mark} agent.inputrc"
-    block: "{{agent_inputrc}}"
-    path: "{{ansible_env.HOME}}/.inputrc"
-  when: agent_inputrc is defined
-
-- name: Look for bash
-  shell: which bash
-  register: found_bash
-  ignore_errors: yes
-
-- name: Set bash-config file for non-Darwin
-  set_fact:
-    bash_config: "{{ansible_env.HOME}}/.bashrc"
-  when: ansible_os_family!="Darwin"
-
-- name: Set bash-config file for Darwin
-  set_fact:
-    bash_config: "{{ansible_env.HOME}}/.bash_profile"
-  when: ansible_os_family=="Darwin"
 
 - name: Write reminder in OSX bashrc
   blockinfile:
@@ -82,7 +59,7 @@
     regexp: "alias {{item}}"
   with_items: "{{bash.aliases_nondarwin}}"
 
-- name: "Setup agent bash-functions"
+- name: Setup agent bash-functions
   become: no
   when: found_bash|succeeded
   blockinfile:
@@ -104,4 +81,4 @@
   blockinfile:
     path: "{{bash_config}}"
     block: "{{env_block}}"
-    marker: "# {marker} agent.bash.env"
+    marker: "# {mark} agent.bash.env"

@@ -1,0 +1,8 @@
+- name: Configure inputrc
+  become: no
+  blockinfile:
+    create: yes
+    marker: "# {mark} agent.inputrc"
+    block: "{{agent_inputrc}}"
+    path: "{{ansible_env.HOME}}/.inputrc"
+  when: agent_inputrc is defined

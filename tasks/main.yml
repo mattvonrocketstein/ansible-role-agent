@@ -1,0 +1,14 @@
+- name: Gather facts
+  setup:
+
+- include_tasks: dirs.yml
+  when: agent_dirs
+
+- include_tasks: bash.yml
+  when: agent_bash
+
+- include_tasks: code.yml
+  when: agent_code
+
+- include_tasks: ssh.yml
+  when: agent_ssh

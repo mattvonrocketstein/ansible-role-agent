@@ -1,0 +1,14 @@
+- name: Create standard agent directories
+  become: no
+  file:
+    path: "{{ansible_env.HOME}}/{{item}}"
+    state: directory
+  with_items: "{{agent_dirs}}"
+
+- name: "Make sure agent has ~/.ssh folder"
+  file:
+    owner: "{{ansible_user}}"
+    path: "{{ansible_env.HOME}}/.ssh"
+    state: directory
+    mode: 0700
+  when: agent_ssh_dir

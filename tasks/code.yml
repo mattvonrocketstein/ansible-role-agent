@@ -1,0 +1,62 @@
+##
+# Usage example:
+#
+# agent_code_home: '{{ansible_env.HOME}}/code'
+# code_by_org:
+#
+#   ##
+#   # toplevel [name, repo] lists, these will be cloned to
+#   # the code root, i.e. `{{agent_code_home}}/toplevel1` and
+#   # `{{agent_code_home}}/toplevel2` respectively
+#   ##
+#   default:
+#     - ['toplevel1', 'git@github.com:username/myrepo1.git']
+#     - ['toplevel2', 'git@github.com:username/myrepo2.git']
+#
+#   ##
+#   # org or project [name, repo] lists, these will be cloned to
+#   # subfolders in the code root, i.e.
+#   # `{{agent_code_home}}/org_name/my_repo`
+#   ##
+#   org_name:
+#     - ['myrepo', 'git@github.com:org_name/orgrepo.git']
+##
+- name: Gather facts
+  setup:
+
+- name: Plan
+  debug:
+    var: code_by_org
+
+- name: Create code home
+  become: no
+  file:
+    path: "{{agent_code_home}}"
+    state: directory
+  with_items:
+    - "{{agent_code_home}}"
+
+- name: Describe orgs
+  debug:
+    msg: "{{code_by_org[item]}}"
+  with_items: "{{ code_by_org.keys() }}"
+
+- name: "Get clones for each org/repo"
+  shell: |
+    from __future__ import print_function; import os; \
+    x = {{code_by_org[item]|json_query('[*]')}}; \
+    print([ os.system('git clone {0} {{agent_code_home}}/{{item}}/{1}'.format(repo, sub)) for sub, repo in x]);
+  args:
+    executable: python
+  when: item!='default' and code_by_org[item]
+  with_items: "{{ code_by_org }}"
+
+- name: "Get clones for default org"
+  shell: |
+    from __future__ import print_function; import os; \
+    x = {{code_by_org[item]|json_query('[*]')}}; \
+    print([ os.system('git clone {0} {{agent_code_home}}/{1}'.format(repo, sub)) for sub, repo in x]);
+  args:
+    executable: python
+  when: item=='default' and code_by_org['default']
+  with_items: "{{ code_by_org }}"

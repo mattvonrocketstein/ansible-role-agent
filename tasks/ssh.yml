@@ -1,0 +1,16 @@
+# requirements.yml
+# - src: gaqzi.ssh-config
+#   path: library/
+# - name: Add blop
+#   role ssh_config:
+#     host: blop
+#     hostname: blop
+#     identity_file: blop
+#     port: 222
+#     state: present
+
+# - name: Pass variables to role
+#   include_role:
+#     name: myrole
+#   vars:
+#     rolevar1: 'value from task'

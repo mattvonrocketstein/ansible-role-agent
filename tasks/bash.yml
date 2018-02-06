@@ -1,0 +1,61 @@
+
+- name: Look for bash
+  shell: which bash
+  register: found_bash
+  ignore_errors: yes
+
+- name: Set bash-config file for non-Darwin
+  set_fact:
+    bash_config: "{{ansible_env.HOME}}/.bashrc"
+  when: ansible_os_family!="Darwin"
+
+- name: Set bash-config file for Darwin
+  set_fact:
+    bash_config: "{{ansible_env.HOME}}/.bash_profile"
+  when: ansible_os_family=="Darwin"
+
+- name: Create bash-config if not present
+  become: no
+  file:
+    path: "{{bash_config}}"
+    state: touch
+
+- name: "Setup $PATH"
+  become: no
+  when: found_bash|succeeded
+  lineinfile:
+    path: "{{bash_config}}"
+    line: "PATH=$PATH:{{PATH_extras|default('~/bin')}}"
+    state: present
+
+- name: "Setup agent bash-aliases"
+  become: no
+  when: found_bash|succeeded
+  lineinfile:
+    path: "{{bash_config}}"
+    line: "alias {{item}}"
+    regexp: "alias {{item}}"
+  with_items: "{{bash.aliases}}"
+
+- name: Concatenate the bash-env
+  set_fact:
+    env_block: "{{ bash.env | join('\n') }}"
+
+- name: Setup agent bash-env
+  become: no
+  when: found_bash|succeeded
+  blockinfile:
+    path: "{{bash_config}}"
+    block: "{{env_block}}"
+    marker: "# {marker} agent.bash.env"
+
+- name: "Setup agent bash-functions"
+  become: no
+  when: found_bash|succeeded
+  blockinfile:
+    path: "{{bash_config}}"
+    block: |
+      function {{item.key}}(){
+        {{item.value}}
+      }
+  with_dict: "{{bash.functions}}"

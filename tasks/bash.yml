@@ -1,7 +1,10 @@
 - name: Configure inputrc
+  become: no
   blockinfile:
+    create: yes
     marker: "# {mark} agent.inputrc"
     block: "{{agent_inputrc}}"
+    path: "{{ansible_env.HOME}}/.inputrc"
   when: agent_inputrc is defined
 
 - name: Look for bash
@@ -19,21 +22,40 @@
     bash_config: "{{ansible_env.HOME}}/.bash_profile"
   when: ansible_os_family=="Darwin"
 
+- name: Write reminder in OSX bashrc
+  blockinfile:
+    path: "{{ansible_env.HOME}}/.bashrc"
+    marker: "# {mark}  agent.bash.disclaimer {{item|default('')}}"
+    block: |
+      ##
+      # Not used for OSX.  See ~/.bash_profile
+      ##
+    create: yes
+  when: ansible_os_family=="Darwin"
+
 - name: Create bash-config if not present
   become: no
   file:
     path: "{{bash_config}}"
     state: touch
 
+- name: Add init block to bash config
+  blockinfile:
+    path: "{{bash_config}}"
+    marker: "# {mark}  agent.bash.init {{item|default('')}}"
+    block: "{{bash.init}}"
+    create: yes
+
 - name: "Setup $PATH"
   become: no
   when: found_bash|succeeded
-  lineinfile:
+  blockinfile:
+    marker: "# {mark}  agent.bash.path"
     path: "{{bash_config}}"
-    line: "PATH=$PATH:{{PATH_extras|default('~/bin')}}"
+    block: "PATH=$PATH:{{PATH_extras|default('~/bin')}}"
     state: present
 
-- name: "Setup agent bash-aliases"
+- name: "Setup agent bash-aliases (common)"
   become: no
   when: found_bash|succeeded
   lineinfile:
@@ -41,6 +63,36 @@
     line: "alias {{item}}"
     regexp: "alias {{item}}"
   with_items: "{{bash.aliases}}"
+
+- name: "Setup agent bash-aliases (darwin)"
+  become: no
+  when: found_bash|succeeded and ansible_os_family=="Darwin"
+  lineinfile:
+    path: "{{bash_config}}"
+    line: "alias {{item}}"
+    regexp: "alias {{item}}"
+  with_items: "{{bash.aliases_darwin}}"
+
+- name: "Setup agent bash-aliases (non-darwin)"
+  become: no
+  when: ansible_os_family!="Darwin" and found_bash|succeeded
+  lineinfile:
+    path: "{{bash_config}}"
+    line: "alias {{item}}"
+    regexp: "alias {{item}}"
+  with_items: "{{bash.aliases_nondarwin}}"
+
+- name: "Setup agent bash-functions"
+  become: no
+  when: found_bash|succeeded
+  blockinfile:
+    marker: "# {mark} agent.bash.functions `{{item.key}}`"
+    path: "{{bash_config}}"
+    block: |
+      function {{item.key}}(){
+        {{item.value}}
+      }
+  with_dict: "{{bash.functions}}"
 
 - name: Concatenate the bash-env
   set_fact:
@@ -53,14 +105,3 @@
     path: "{{bash_config}}"
     block: "{{env_block}}"
     marker: "# {marker} agent.bash.env"
-
-- name: "Setup agent bash-functions"
-  become: no
-  when: found_bash|succeeded
-  blockinfile:
-    path: "{{bash_config}}"
-    block: |
-      function {{item.key}}(){
-        {{item.value}}
-      }
-  with_dict: "{{bash.functions}}"

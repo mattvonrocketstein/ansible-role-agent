@@ -1,4 +1,8 @@
-
+##
+# tasks/autojump.yml:
+#  install and configure autojump from source
+#  the brew package for this does not work
+##
 - name: Clone autojump
   git:
     repo: 'https://github.com/wting/autojump.git'

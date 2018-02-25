@@ -1,3 +1,5 @@
+- include_tasks: setup.yml
+
 - name: Configure inputrc
   become: no
   blockinfile:
@@ -5,4 +7,3 @@
     marker: "# {mark} agent.inputrc"
     block: "{{agent_inputrc}}"
     path: "{{ansible_env.HOME}}/.inputrc"
-  when: agent_inputrc is defined

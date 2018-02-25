@@ -19,15 +19,15 @@
 - include_tasks: autojump.yml
   when: install_autojump
 
-- include_tasks: inputrc.yml
+# - include_tasks: inputrc.yml
 - include_tasks: bash.yml
   when: agent_bash
 
-- include_tasks: dirs.yml
-  when: agent_dirs
+# - include_tasks: dirs.yml
+#   when: agent_dirs
 
-- include_tasks: code.yml
-  when: agent_code
+# - include_tasks: code.yml
+#   when: agent_code
 
 - include_tasks: ssh.yml
   when: agent_ssh

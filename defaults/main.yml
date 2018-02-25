@@ -1,8 +1,48 @@
 ---
 # defaults file for ansible/roles/agent
 
+##
 #
+##
 agent_code_home: "{{ansible_env.HOME}}/code"
+
+##
+#
+##
+agent_inputrc: |
+  # ~/.inputrc - inputrc for libreadline
+  # Be 8 bit clean.
+  set input-meta on
+  set output-meta on
+  # do not bell on tab-completion
+  # set bell-style none
+  # set bell-style visible
+  # some defaults / modifications for the emacs mode
+  $if mode=emacs
+  # allow the use of the Home/End keys
+  "\e[1~": beginning-of-line
+  "\e[4~": end-of-line
+  # allow the use of the Delete/Insert keys
+  "\e[3~": delete-char
+  "\e[2~": quoted-insert
+  # mappings for Ctrl-left-arrow and Ctrl-right-arrow for word moving
+  "\e[1;5C": forward-word
+  "\e[1;5D": backward-word
+  "\e[5C": forward-word
+  "\e[5D": backward-word
+  "\e\e[C": forward-word
+  "\e\e[D": backward-word
+  $if term=rxvt
+  "\e[8~": end-of-line
+  "\eOc": forward-word
+  "\eOd": backward-word
+  $endif
+  $endif
+  set completion-ignore-case On
+  "\C-h":backward-kill-word
+  set completion-ignore-case On
+  "\e[A": history-search-backward
+  "\e[B": history-search-forward
 
 #
 agent_ssh_dir: yes
@@ -18,7 +58,14 @@ agent_ssh: no
 agent_bash: no
 
 #
-agent_dirs: no
+agent_dirs:
+  #subdirs to be created under ~
+  - bin
+  - logs
+  - data
+  - code
+  - venv
+  - tmp
 
 #
 agent_code: no

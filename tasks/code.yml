@@ -21,9 +21,7 @@
 #   org_name:
 #     - ['myrepo', 'git@github.com:org_name/orgrepo.git']
 ##
-- name: Gather facts
-  setup:
-
+- include_tasks: setup.yml
 - name: Plan
   debug:
     var: code_by_org

@@ -1,14 +1,17 @@
+- name: Look for bash
+  shell: which bash
+  register: found_bash
+  ignore_errors: yes
 
-- name: Write reminder in OSX bashrc
-  blockinfile:
-    path: "{{ansible_env.HOME}}/.bashrc"
-    marker: "# {mark}  agent.bash.disclaimer {{item|default('')}}"
-    block: |
-      ##
-      # Not used for OSX.  See ~/.bash_profile
-      ##
-    create: yes
+- include_tasks: bash-osx.yml
   when: ansible_os_family=="Darwin"
+  vars:
+    found_bash: "{{found_bash}}"
+
+- name: Set bash-config file for non-Darwin
+  set_fact:
+    bash_config: "{{ansible_env.HOME}}/.bashrc"
+  when: ansible_os_family!="Darwin"
 
 - name: Create bash-config if not present
   become: no

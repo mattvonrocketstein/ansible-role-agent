@@ -4,7 +4,7 @@
 ##
 #
 ##
-agent_code_home: "{{ansible_env.HOME}}/code"
+agent_code_home: "~{{ansible_user}}/code"
 
 ##
 #

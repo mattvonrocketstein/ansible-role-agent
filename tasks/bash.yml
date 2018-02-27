@@ -3,15 +3,15 @@
   register: found_bash
   ignore_errors: yes
 
+# set `bash_config` based on user, OS, etc
+- include_tasks: bash-set-config.yml
+  vars:
+    found_bash: "{{found_bash}}"
+
 - include_tasks: bash-osx.yml
   when: ansible_os_family=="Darwin"
   vars:
     found_bash: "{{found_bash}}"
-
-- name: Set bash-config file for non-Darwin
-  set_fact:
-    bash_config: "{{ansible_env.HOME}}/.bashrc"
-  when: ansible_os_family!="Darwin"
 
 - name: Create bash-config if not present
   become: no
@@ -37,7 +37,7 @@
 
 - name: "Setup agent bash-aliases (common)"
   become: no
-  when: found_bash|succeeded
+  when: found_bash is succeeded
   lineinfile:
     path: "{{bash_config}}"
     line: "alias {{item}}"
@@ -46,7 +46,7 @@
 
 - name: "Setup agent bash-aliases (darwin)"
   become: no
-  when: found_bash|succeeded and ansible_os_family=="Darwin"
+  when: found_bash is succeeded and ansible_os_family=="Darwin"
   lineinfile:
     path: "{{bash_config}}"
     line: "alias {{item}}"
@@ -80,7 +80,7 @@
 
 - name: Setup agent bash-env
   become: no
-  when: found_bash|succeeded
+  when: found_bash is succeeded
   blockinfile:
     path: "{{bash_config}}"
     block: "{{env_block}}"

@@ -1,0 +1,30 @@
+##
+# Helper for cloning repositories into {{agent_code_home}}
+#
+# Example usage:
+#
+#   - name: Clone Liquidprompt
+#     include_role:
+#       name: mvonrocketstein.agent
+#       tasks_from: clone.yml
+#     vars:
+#       repo: 'https://github.com/nojhan/liquidprompt.git'
+#       version: "{{liquidprompt_version | default('master')}}"
+##
+- include_tasks: create-code-home.yml
+
+- set_fact:
+    default_repo_name: "{{repo|basename|splitext|first}}"
+- set_fact:
+    repo_name: "{{repo_name|default(default_repo_name)}}"
+- set_fact:
+    clone_dest: "{{'/'.join([agent_code_home, repo_name])}}"
+    clone_version: "{{version|default('master')}}"
+
+- name: Clone repository
+  git:
+    repo: '{{repo}}'
+    dest: '{{clone_dest}}'
+    version: "{{clone_version}}"
+  with_items:
+    - "dest={{clone_dest}} repo={{repo}} version={{clone_version}}"

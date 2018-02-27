@@ -1,27 +1,27 @@
-- name: Gather facts
-  setup:
+# - name: Gather facts
+#   setup:
+#
+# - name: Look for bash
+#   shell: which bash
+#   register: found_bash
+#   ignore_errors: yes
+# - include_tasks: bash-set-config.yml
+# - name: Set bash-config file for non-Darwin
+#   set_fact:
+#     bash_config: "~{{ansible_user}}/.bashrc"
+#   when: ansible_os_family!="Darwin"
+#
+# - name: Set bash-config file for Darwin
+#   set_fact:
+#     bash_config: "~{{ansible_user}}/.bash_profile"
+#   when: ansible_os_family=="Darwin"
 
-- name: Look for bash
-  shell: which bash
-  register: found_bash
-  ignore_errors: yes
-
-- name: Set bash-config file for non-Darwin
-  set_fact:
-    bash_config: "{{ansible_env.HOME}}/.bashrc"
-  when: ansible_os_family!="Darwin"
-
-- name: Set bash-config file for Darwin
-  set_fact:
-    bash_config: "{{ansible_env.HOME}}/.bash_profile"
-  when: ansible_os_family=="Darwin"
-
-- include_tasks: autojump.yml
-  when: install_autojump
+# - include_tasks: autojump.yml
+#   when: install_autojump
 
 # - include_tasks: inputrc.yml
-- include_tasks: bash.yml
-  when: agent_bash
+# - include_tasks: bash.yml
+#   when: agent_bash
 
 # - include_tasks: dirs.yml
 #   when: agent_dirs
@@ -29,5 +29,5 @@
 # - include_tasks: code.yml
 #   when: agent_code
 
-- include_tasks: ssh.yml
-  when: agent_ssh
+# - include_tasks: ssh.yml
+#   when: agent_ssh

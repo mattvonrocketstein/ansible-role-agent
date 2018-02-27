@@ -1,0 +1,17 @@
+
+- include_tasks: setup.yml
+
+- name: Set bash-config file for Darwin
+  become: no
+  set_fact:
+    bash_config: "~{{ansible_user}}/.bash_profile"
+  when: ansible_os_family=="Darwin"
+
+- name: Set bash-config file for non-Darwin
+  become: no
+  set_fact:
+    bash_config: "~{{ansible_user}}/.bashrc"
+  when: ansible_os_family!="Darwin"
+
+- debug:
+    var: bash_config

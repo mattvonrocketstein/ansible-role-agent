@@ -1,0 +1,7 @@
+- name: Create code home
+  become: no
+  file:
+    path: "{{agent_code_home}}"
+    state: directory
+  with_items:
+    - "{{agent_code_home}}"

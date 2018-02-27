@@ -1,0 +1,46 @@
+# set `bash_config` based on user, OS, etc
+- include_tasks: bash-set-config.yml
+  become: no
+  vars:
+    found_bash: "{{found_bash}}"
+
+- name: Look for pip
+  shell: which pip
+  register: found_pip
+  ignore_errors: yes
+
+- name: Ensure a pip is available
+  become: yes
+  easy_install:
+    name: pip
+    state: latest
+  when:  found_pip is failed
+
+- name: "Install virtualenvwrapper"
+  become: yes
+  ansible_become_pass: yes
+  include_role:
+    name: lciolecki.virtualenvwrapper
+  vars:
+    virtualenvwrapper_version: 4.7
+    # virtualenvwrapper_python: /usr/bin/python
+    # virtualenvwrapper_virtualenv: /usr/local/bin/virtualenv
+    # virtualenvwrapper_source: /usr/local/bin/virtualenvwrapper.sh
+    virtualenvwrapper_home: "~{{ansible_user}}/.venv/"
+    # virtualenvwrapper_project: "~{{ansible_user}}/projects/"
+    virtualenvwrapper_shell_file: "{{bash_config}}"
+
+- name: Update apt cache (Debian)
+  apt: upgrade=no update_cache=yes cache_valid_time=999999
+  when: ansible_os_family=="Debian"
+
+- name: Install Python Dev (Debian)
+  apt:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - python
+    - python-pip
+    - python-dev
+    - python-virtualenv
+  when: ansible_os_family=="Debian"

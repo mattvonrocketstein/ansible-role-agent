@@ -11,11 +11,11 @@
 
 - name: Install autojump
   shell: 'cd {{agent_code_home}}/autojump && python ./install.py'
-  creates: '{{ansible_env.HOME}}/.autojump'
+  creates: '~{{ansible_user}}/.autojump'
 
 - name: Configure autojump
   blockinfile:
     marker: "# {mark} agent.autojump"
     path: "{{bash_config}}"
     block: |
-      [[ -s {{ansible_env.HOME}}/.autojump/etc/profile.d/autojump.sh ]] && source {{ansible_env.HOME}}/.autojump/etc/profile.d/autojump.sh
+      [[ -s ~{{ansible_user}}/.autojump/etc/profile.d/autojump.sh ]] && source ~{{ansible_user}}/.autojump/etc/profile.d/autojump.sh

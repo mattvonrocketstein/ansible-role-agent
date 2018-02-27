@@ -1,0 +1,30 @@
+##
+#
+##
+- name: Clone Liquidprompt
+  include_tasks: clone.yml
+  vars:
+    repo: 'https://github.com/nojhan/liquidprompt.git'
+    version: "{{liquidprompt_version | default('master')}}"
+
+- include_tasks: bash-set-config.yml
+
+- blockinfile:
+    marker: "# {mark}  agent.liquidprompt {{item|default('')}}"
+    block: |
+      # Only load Liquid Prompt in interactive shells, not from a script or from scp
+      [[ $- = *i* ]] && source {{agent_code_home}}/liquidprompt/liquidprompt
+      export LP_PS1_POSTFIX="\nλ "
+    path: "{{bash_config}}"
+  become: no
+
+- file:
+    path: "~{{ansible_user}}/.config"
+    state: directory
+  become: no
+
+- shell: >
+    ls ~{{ansible_user}}/.config/liquidpromptrc ||
+    cp {{agent_code_home}}/liquidprompt/liquidpromptrc-dist
+    ~{{ansible_user}}/.config/liquidpromptrc
+  become: no
